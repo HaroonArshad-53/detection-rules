@@ -1,0 +1,27 @@
+title: Potential LSASS Credential Dumping via ProcDump
+id: b9aaa906-886c-4b36-8014-3111b089c0cd
+status: test
+description: Detects Sysinternals ProcDump being used to dump the LSASS process memory, a common technique for extracting credentials from Windows systems.
+author: Haroon Arshad
+date: 2026/10/12
+references:
+    - https://attack.mitre.org/techniques/T1003/001/
+    - https://learn.microsoft.com/en-us/sysinternals/downloads/procdump
+tags:
+    - attack.credential_access
+    - attack.t1003.001
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    selection_img:
+        - Image|endswith: '\procdump.exe'
+        - OriginalFileName: 'procdump.exe'
+    selection_cli:
+        CommandLine|contains:
+            - 'lsass'
+            - '-ma'
+    condition: selection_img and selection_cli
+falsepositives:
+    - Legitimate administrative debugging or crash-dump analysis of LSASS (rare; verify with the system owner)
+level: high
